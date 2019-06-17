@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Fortelinea.Licensing.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Nathan Barnett</Authors>
+    <Company>Fortelinea Software Systems, Inc.</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RepositoryUrl>https://github.com/natebarnett/Licensing.git</RepositoryUrl>
+    <PackageTags>license;licensing;generator;validator;xml;rsa;.net standard</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Provides basic tools for creating and validating XML license files, protected with RSA keys</Description>
+    <PackageProjectUrl>https://github.com/natebarnett/Licensing</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.6.5" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.5.0" />
+    <PackageReference Include="Yort.Ntp.Portable" Version="2.0.0" />
+  </ItemGroup>
+
+</Project>
