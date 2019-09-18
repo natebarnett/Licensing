@@ -20,7 +20,7 @@ namespace Fortelinea.Licensing.Core
 
         protected readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
-        private readonly NtpClient _ntpClient = new NtpClient();
+        private readonly NtpClient _ntpClient = new NtpClient("time.nist.gov");
 
         private readonly string _publicKey;
 
@@ -66,8 +66,16 @@ namespace Fortelinea.Licensing.Core
                 return DateTime.UtcNow;
             }
 
-            var currentTime = await _ntpClient.RequestTimeAsync();
-            return currentTime.NtpTime;
+            try
+            {
+                var currentTime = await _ntpClient.RequestTimeAsync();
+                return currentTime.NtpTime;
+            }
+            catch
+            {
+                if (RequireNetworkTimeCheck) throw;
+                return DateTime.UtcNow;
+            }
         }
 
         /// <summary>

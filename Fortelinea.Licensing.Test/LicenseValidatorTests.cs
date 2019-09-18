@@ -34,7 +34,10 @@ namespace Fortelinea.Licensing.Test
                 var clientLicenseContent = licenseGenerator.Generate(licenseName, id, expirationDate, extraAttributes, LicenseType.Trial);
 
                 var publicKeyContents = await File.ReadAllTextAsync(publicKeyPath);
-                var validator = new EmbeddedLicenseValidator(publicKeyContents);
+                var validator = new EmbeddedLicenseValidator(publicKeyContents)
+                                {
+                                    RequireNetworkTimeCheck = false
+                                };
                 Assert.ThrowsAsync<LicenseExpiredException>(() => validator.AssertValidLicenseAsync(clientLicenseContent));
             }
             finally
@@ -74,7 +77,10 @@ namespace Fortelinea.Licensing.Test
                 var clientLicenseContent = licenseGenerator.Generate(licenseName, id, expirationDate, extraAttributes, LicenseType.Trial);
 
                 var publicKeyContents = await File.ReadAllTextAsync(publicKeyPath);
-                var validator = new EmbeddedLicenseValidator(publicKeyContents);
+                var validator = new EmbeddedLicenseValidator(publicKeyContents)
+                                {
+                                    RequireNetworkTimeCheck = false
+                                };
                 Assert.DoesNotThrowAsync(() => validator.AssertValidLicenseAsync(clientLicenseContent));
             }
             finally
