@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Fortelinea.Licensing.Validators</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>Nathan Barnett</Authors>
     <Company>Fortelinea Software Systems, Inc.</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -13,12 +13,12 @@
     <Description>Provides various license validators that can be used to validate client licenses (embedded, floating, subscription, etc.)</Description>
     <PackageProjectUrl>https://github.com/natebarnett/Licensing</PackageProjectUrl>
     <PackageReleaseNotes>Update nuget packages</PackageReleaseNotes>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
-    <FileVersion>1.0.2.0</FileVersion>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fortelinea.Licensing.Core" Version="1.0.1" />
+    <PackageReference Include="Fortelinea.Licensing.Core" Version="1.0.3" />
     <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
   </ItemGroup>
 
