@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Fortelinea.Licensing.Core</PackageId>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Authors>Nathan Barnett</Authors>
     <Company>Fortelinea Software Systems, Inc.</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -14,8 +14,8 @@
     <PackageProjectUrl>https://github.com/natebarnett/Licensing</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>Update nuget packages</PackageReleaseNotes>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <FileVersion>1.0.3.0</FileVersion>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <FileVersion>1.0.4.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
