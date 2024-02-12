@@ -138,3 +138,4 @@ Installer/Clients/VoiceRecognition
 Fortelinea.Prima.Services.REST/wwwroot
 Fortelinea.Prima.REST.Service/wwwroot
 lib/Utilities/RequireAdminInManifest\.pdb
+*.key

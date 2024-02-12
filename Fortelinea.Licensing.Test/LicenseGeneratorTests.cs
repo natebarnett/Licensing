@@ -10,7 +10,9 @@ namespace Fortelinea.Licensing.Test
     public class LicenseGeneratorTests
     {
         [SetUp]
-        public void Setup() { }
+        public void Setup()
+        {
+        }
 
         [Test]
         public async Task TestGenerateKeyAsync()
@@ -28,13 +30,19 @@ namespace Fortelinea.Licensing.Test
             }
             finally
             {
-                try { File.Delete(publicKeyPath); }
+                try
+                {
+                    File.Delete(publicKeyPath);
+                }
                 catch
                 {
                     /* Ignore */
                 }
 
-                try { File.Delete(privateKeyPath); }
+                try
+                {
+                    File.Delete(privateKeyPath);
+                }
                 catch
                 {
                     /* Ignore */
@@ -60,24 +68,31 @@ namespace Fortelinea.Licensing.Test
                 var now = DateTime.UtcNow;
                 var expirationDate = now.AddDays(1);
                 var extraAttributes = new Dictionary<string, string>();
-                var clientLicenseContent = licenseGenerator.Generate(licenseName, id, expirationDate, extraAttributes, LicenseType.Trial);
+                var clientLicenseContent = licenseGenerator.Generate(licenseName, id, expirationDate, extraAttributes,
+                    LicenseType.Trial);
 
                 var clientLicense = LicenseParser.LoadLicenseContent(clientLicenseContent);
 
                 // Ensure that what we packed into the license can be read
-                Assert.AreEqual(licenseName, clientLicense.Name);
-                Assert.AreEqual(id, clientLicense.UserId);
-                Assert.AreEqual(TimeSpan.FromDays(1), clientLicense.ExpirationDate - now);
+                Assert.That(licenseName, Is.EqualTo(clientLicense.Name));
+                Assert.That(id, Is.EqualTo(clientLicense.UserId));
+                Assert.That(TimeSpan.FromDays(1), Is.EqualTo(clientLicense.ExpirationDate - now));
             }
             finally
             {
-                try { File.Delete(publicKeyPath); }
+                try
+                {
+                    File.Delete(publicKeyPath);
+                }
                 catch
                 {
                     /* Ignore */
                 }
 
-                try { File.Delete(privateKeyPath); }
+                try
+                {
+                    File.Delete(privateKeyPath);
+                }
                 catch
                 {
                     /* Ignore */
