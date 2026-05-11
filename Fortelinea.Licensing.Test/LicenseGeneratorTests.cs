@@ -99,5 +99,60 @@ namespace Fortelinea.Licensing.Test
                 }
             }
         }
+
+        [Test]
+        public async Task Generate_WithoutExplicitAttributes_Succeeds()
+        {
+            var publicKeyPath = Path.GetTempFileName();
+            var privateKeyPath = Path.GetTempFileName();
+
+            try
+            {
+                await LicenseGenerator.GenerateKeyAsync(publicKeyPath, privateKeyPath);
+
+                var privateKeyContents = await File.ReadAllTextAsync(privateKeyPath);
+                var generator = new LicenseGenerator(privateKeyContents);
+
+                var content = generator.Generate("Test Co.", Guid.NewGuid(), DateTime.UtcNow.AddDays(1), LicenseType.Standard);
+
+                Assert.That(content, Is.Not.Null.And.Not.Empty);
+                var license = LicenseParser.LoadLicenseContent(content);
+                Assert.That(license.LicenseType, Is.EqualTo(LicenseType.Standard));
+            }
+            finally
+            {
+                try { File.Delete(publicKeyPath); } catch { /* Ignore */ }
+                try { File.Delete(privateKeyPath); } catch { /* Ignore */ }
+            }
+        }
+
+        [Test]
+        public async Task GenerateFloatingLicense_WritesValidXml()
+        {
+            var publicKeyPath = Path.GetTempFileName();
+            var privateKeyPath = Path.GetTempFileName();
+
+            try
+            {
+                await LicenseGenerator.GenerateKeyAsync(publicKeyPath, privateKeyPath);
+
+                var privateKeyContents = await File.ReadAllTextAsync(privateKeyPath);
+                var publicKeyContents = await File.ReadAllTextAsync(publicKeyPath);
+                var generator = new LicenseGenerator(privateKeyContents);
+
+                var floatingLicense = generator.GenerateFloatingLicense("Acme Test Co.", publicKeyContents);
+
+                Assert.That(floatingLicense, Is.Not.Null.And.Not.Empty);
+                var doc = new System.Xml.XmlDocument();
+                Assert.DoesNotThrow(() => doc.LoadXml(floatingLicense));
+                Assert.That(doc.SelectSingleNode("/floating-license/name/text()")?.Value,
+                            Is.EqualTo("Acme Test Co."));
+            }
+            finally
+            {
+                try { File.Delete(publicKeyPath); } catch { /* Ignore */ }
+                try { File.Delete(privateKeyPath); } catch { /* Ignore */ }
+            }
+        }
     }
 }

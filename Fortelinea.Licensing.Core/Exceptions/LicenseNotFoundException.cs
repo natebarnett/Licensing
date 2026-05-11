@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace Fortelinea.Licensing.Core
 {
     /// <summary>
     ///     Thrown when suitable license is not found.
     /// </summary>
-    [Serializable]
     public class LicenseNotFoundException : LicensingException
     {
         /// <summary>
@@ -27,11 +25,5 @@ namespace Fortelinea.Licensing.Core
         /// <param name="inner">inner exception</param>
         public LicenseNotFoundException(string message, Exception inner) : base(message, inner) { }
 
-        /// <summary>
-        ///     Creates a new instance of <seealso cref="LicenseNotFoundException" />.
-        /// </summary>
-        /// <param name="info">serialization information</param>
-        /// <param name="context">steaming context</param>
-        protected LicenseNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }

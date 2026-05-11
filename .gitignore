@@ -139,3 +139,6 @@ Fortelinea.Prima.Services.REST/wwwroot
 Fortelinea.Prima.REST.Service/wwwroot
 lib/Utilities/RequireAdminInManifest\.pdb
 *.key
+
+# Claude Code local settings
+.claude/settings.local.json

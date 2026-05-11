@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Xml;
 using NLog;
 
@@ -20,6 +21,7 @@ namespace Fortelinea.Licensing.Core
 
         public static License LoadLicenseFile(string licensePath)
         {
+            if (!File.Exists(licensePath)) throw new LicenseFileNotFoundException(licensePath);
             var xmlDocument = new XmlDocument();
             xmlDocument.Load(licensePath);
             return Parse(xmlDocument);

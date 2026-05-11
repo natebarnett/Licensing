@@ -14,9 +14,11 @@ namespace Fortelinea.Licensing.Core
     /// </summary>
     public abstract class LicenseValidator : ILicenseValidator
     {
+#if !NET10_0_OR_GREATER
         private readonly CspParameters _cspParameters;
 
         private readonly int _keySize;
+#endif
 
         protected readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
@@ -29,6 +31,13 @@ namespace Fortelinea.Licensing.Core
         /// </summary>
         /// <param name="publicKey">public key</param>
         /// <param name="keySize"></param>
+#if NET10_0_OR_GREATER
+        protected LicenseValidator(string publicKey, int keySize = 4096)
+        {
+            _publicKey = publicKey;
+            // keySize accepted for call-site source compatibility; key size is determined by imported key material on net10
+        }
+#else
         /// <param name="cspParameters">null by default</param>
         protected LicenseValidator(string publicKey, int keySize = 4096, CspParameters cspParameters = null)
         {
@@ -36,6 +45,7 @@ namespace Fortelinea.Licensing.Core
             _keySize = keySize;
             _cspParameters = cspParameters;
         }
+#endif
 
         public bool RequireNetworkTimeCheck { get; set; } = true;
 
@@ -50,8 +60,6 @@ namespace Fortelinea.Licensing.Core
             var updatedLicense = await HandleUpdateableLicenseAsync(existingLicense);
 
             ValidateLicenseType(updatedLicense);
-            var doc = new XmlDocument();
-            doc.LoadXml(xmlLicenseContents);
             if (!IsValidLicenseCryptoSignature(updatedLicense)) throw new CryptoSignatureVerificationFailedException();
             if (await IsLicenseExpiredAsync(updatedLicense)) throw new LicenseExpiredException($"License expired {updatedLicense.ExpirationDate}");
         }
@@ -93,13 +101,21 @@ namespace Fortelinea.Licensing.Core
 
         protected bool IsValidLicenseCryptoSignature(License clientLicense)
         {
-            var rsa = _cspParameters == null ? new RSACryptoServiceProvider(_keySize) : new RSACryptoServiceProvider(_keySize, _cspParameters);
-            RSAKeyExtensions.FromXmlString(rsa, _publicKey);
-
+#if NET10_0_OR_GREATER
+            using var rsa = RSA.Create();
+            rsa.FromXmlString(_publicKey);
             var signedXml = new SignedXml(clientLicense.FileContents);
             signedXml.LoadXml(clientLicense.Signature);
-
             return signedXml.CheckSignature(rsa);
+#else
+            using (var rsa = _cspParameters == null ? new RSACryptoServiceProvider(_keySize) : new RSACryptoServiceProvider(_keySize, _cspParameters))
+            {
+                RSAKeyExtensions.FromXmlString(rsa, _publicKey);
+                var signedXml = new SignedXml(clientLicense.FileContents);
+                signedXml.LoadXml(clientLicense.Signature);
+                return signedXml.CheckSignature(rsa);
+            }
+#endif
         }
 
         protected abstract void ValidateLicenseType(License license);

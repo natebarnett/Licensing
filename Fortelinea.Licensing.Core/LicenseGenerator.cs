@@ -75,6 +75,25 @@ namespace Fortelinea.Licensing.Core
         /// <returns></returns>
         public string Generate(string name, Guid id, DateTime expirationDate, IDictionary<string, string> attributes, LicenseType licenseType)
         {
+#if NET10_0_OR_GREATER
+            using var rsa = RSA.Create();
+            rsa.FromXmlString(_privateKey);
+            var doc = CreateDocument(id, name, expirationDate, attributes, licenseType);
+
+            var signature = GetXmlDigitalSignature(doc, rsa);
+            doc.FirstChild.AppendChild(doc.ImportNode(signature, true));
+
+            var ms = new MemoryStream();
+            var writer = XmlWriter.Create(ms,
+                                          new XmlWriterSettings
+                                          {
+                                              Indent = true,
+                                              Encoding = Encoding.UTF8
+                                          });
+            doc.Save(writer);
+            ms.Position = 0;
+            return new StreamReader(ms).ReadToEnd();
+#else
             using (var rsa = new RSACryptoServiceProvider())
             {
                 RSAKeyExtensions.FromXmlString(rsa, _privateKey);
@@ -94,6 +113,7 @@ namespace Fortelinea.Licensing.Core
                 ms.Position = 0;
                 return new StreamReader(ms).ReadToEnd();
             }
+#endif
         }
 
         /// <summary>
@@ -104,6 +124,35 @@ namespace Fortelinea.Licensing.Core
         /// <returns>license content</returns>
         public string GenerateFloatingLicense(string name, string publicKey)
         {
+#if NET10_0_OR_GREATER
+            using var rsa = RSA.Create();
+            rsa.FromXmlString(_privateKey);
+            var doc = new XmlDocument();
+            var license = doc.CreateElement("floating-license");
+            doc.AppendChild(license);
+
+            var publicKeyEl = doc.CreateElement("license-server-public-key");
+            license.AppendChild(publicKeyEl);
+            publicKeyEl.InnerText = publicKey;
+
+            var nameEl = doc.CreateElement("name");
+            license.AppendChild(nameEl);
+            nameEl.InnerText = name;
+
+            var signature = GetXmlDigitalSignature(doc, rsa);
+            doc.FirstChild.AppendChild(doc.ImportNode(signature, true));
+
+            var ms = new MemoryStream();
+            var writer = XmlWriter.Create(ms,
+                                          new XmlWriterSettings
+                                          {
+                                              Indent = true,
+                                              Encoding = Encoding.UTF8
+                                          });
+            doc.Save(writer);
+            ms.Position = 0;
+            return new StreamReader(ms).ReadToEnd();
+#else
             using (var rsa = new RSACryptoServiceProvider())
             {
                 RSAKeyExtensions.FromXmlString(rsa, _privateKey);
@@ -133,21 +182,32 @@ namespace Fortelinea.Licensing.Core
                 ms.Position = 0;
                 return new StreamReader(ms).ReadToEnd();
             }
+#endif
         }
 
         /// <summary>
         ///     Generates a public/private key pair that can then be used to create client licenses.
         ///     The public key gets sent with the license and the private is used for the crypto-signing
         /// </summary>
-        public static Task GenerateKeyAsync(string publicKeyPath, string privateKeyPath, int keySize = 4096, CspParameters cspParameters = null)
+#if NET10_0_OR_GREATER
+        public static Task GenerateKeyAsync(string publicKeyPath, string privateKeyPath, int keySize = 4096)
         {
-            var rsa = cspParameters == null ? new RSACryptoServiceProvider(keySize) : new RSACryptoServiceProvider(keySize, cspParameters);
-            RSAKeyExtensions.ToXmlString(rsa, false);
-            File.WriteAllText(publicKeyPath, RSAKeyExtensions.ToXmlString(rsa, false));
-            File.WriteAllText(privateKeyPath, RSAKeyExtensions.ToXmlString(rsa, true));
-
+            using var rsa = RSA.Create(keySize);
+            File.WriteAllText(publicKeyPath, rsa.ToXmlString(false));
+            File.WriteAllText(privateKeyPath, rsa.ToXmlString(true));
             return Task.CompletedTask;
         }
+#else
+        public static Task GenerateKeyAsync(string publicKeyPath, string privateKeyPath, int keySize = 4096, CspParameters cspParameters = null)
+        {
+            using (var rsa = cspParameters == null ? new RSACryptoServiceProvider(keySize) : new RSACryptoServiceProvider(keySize, cspParameters))
+            {
+                File.WriteAllText(publicKeyPath, RSAKeyExtensions.ToXmlString(rsa, false));
+                File.WriteAllText(privateKeyPath, RSAKeyExtensions.ToXmlString(rsa, true));
+                return Task.CompletedTask;
+            }
+        }
+#endif
 
         private static XmlElement GetXmlDigitalSignature(XmlDocument x, AsymmetricAlgorithm key)
         {
